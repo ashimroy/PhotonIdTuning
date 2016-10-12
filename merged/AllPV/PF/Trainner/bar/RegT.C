@@ -1,0 +1,124 @@
+#include <cstdlib>
+#include <iostream> 
+#include <map>
+#include <string>
+
+#include "TChain.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TObjString.h"
+#include "TSystem.h"
+#include "TROOT.h"
+
+
+
+#include "TMVA/GeneticAlgorithm.h"
+#include "TMVA/GeneticFitter.h"
+#include "TMVA/IFitterTarget.h"
+
+//#include "TMVARegGui.C"
+#include "TMVA/Tools.h"
+#include "TMVA/Factory.h"
+
+using namespace TMVA;
+
+
+void RegT(){
+  
+  TMVA::Tools::Instance();
+  std::cout << "==> Start TMVARegression" << std::endl;
+    
+  ifstream myfile; 
+  myfile.open("/uscms_data/d3/asroy/PhotonIdTuning/CMSSW_7_3_5/src/CutBasedPhoID2016/merged/trainner/subset_sample/bar/MediumR.txt");
+
+
+  ostringstream xcS,xcH,xcP,xcC,xcN;  
+  double xS,xH,xC,xN,xP;
+
+  if(myfile.is_open()){
+    while(!myfile.eof()){
+      myfile>>xS>>xC>>xN>>xP;
+    }
+  }
+
+  xcS<<xS;
+  xcH<<xH;
+  xcC<<xC;
+  xcN<<xN;
+  xcP<<xP;
+
+  //Output file 
+  TString outfileName( "Tight_w_BAR_scaled.root" );
+  TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
+  
+  //Declaring the factory
+  TMVA::Factory *factory = new TMVA::Factory( "TMVAClassification", outputFile, 
+					      "!V:!Silent:Color:DrawProgressBar" );
+  //Declaring Input Variables 
+
+  factory->AddVariable( "Sieie",'F');
+  factory->AddVariable( "isoC",'F' );
+  factory->AddVariable( "(isoN-(0.0143*Ppt+0.000017*Ppt*Ppt) > 0 ) ? isoN-(0.0143*Ppt+0.000017*Ppt*Ppt) : 0.0 ",'F' );
+  factory->AddVariable( "(isoP-0.0046*Ppt > 0 ) ? isoP-0.0046*Ppt : 0.0 ",'F' );
+
+  //factory->AddVariable( "(isoN-(0.014*Ppt+0.000019*Ppt*Ppt) > 0 ) ? isoN-(0.014*Ppt+0.000019*Ppt*Ppt) : 0.0 ",'F' );
+  //factory->AddVariable( "(isoP-0.0053*Ppt > 0 ) ? isoP-0.0053*Ppt : 0.0 ",'F' );
+
+
+  factory->AddSpectator( "Ppt",'F' );
+  factory->AddSpectator( "ToE",'F' );
+
+
+  
+  TString fname = "/uscms_data/d3/asroy/PhotonIdTuning/CMSSW_7_3_5/src/CutBasedPhoID2016/merged/CutTMVABarrel90.root";
+  input = TFile::Open( fname );
+  
+  // --- Register the regression tree
+  TTree *signal = (TTree*)input->Get("t_S");
+  TTree *background = (TTree*)input->Get("t_B");
+  
+  //Just Some more settings
+   Double_t signalWeight      = 1.0; 
+   Double_t backgroundWeight  = 1.0; 
+
+   // You can add an arbitrary number of regression trees
+   factory->AddSignalTree( signal, signalWeight );
+   factory->AddBackgroundTree( background , backgroundWeight );
+ 
+   TCut mycuts ="Ppt>15 && Ppt<200 && ToE < 0.05 ";
+   TCut mycutb ="Ppt>15 && Ppt<200 && ToE < 0.05";
+   factory->PrepareTrainingAndTestTree(mycuts,mycutb,"");
+   factory->PrepareTrainingAndTestTree(mycuts,mycutb,"nTrain_Signal=300000:nTrain_Background=300000:nTest_Signal=300000:nTest_Background=300000");
+   //factory->PrepareTrainingAndTestTree(mycuts,mycutb,"nTrain_Signal=9000:nTrain_Background=9000:nTest_Signal=10000:nTest_Background=10000");
+
+   factory->SetBackgroundWeightExpression("weighT");
+   factory->SetSignalWeightExpression("weighT");
+
+   TString methodName = "Cut_Tight_r";
+   TString methodOptions ="!H:!V:FitMethod=GA:EffMethod=EffSEl"; 
+   methodOptions +=":VarProp[0]=FMin:VarProp[1]=FMin:VarProp[2]=FMin:VarProp[3]=FMin";
+  
+   methodOptions +=":CutRangeMax[0]="+xcS.str(); 
+   methodOptions +=":CutRangeMax[1]="+xcC.str();
+   methodOptions +=":CutRangeMax[2]="+xcN.str();
+   methodOptions +=":CutRangeMax[3]="+xcP.str();
+   //  methodOptions +=":CutRangeMax[4]="+xcP.str();
+
+   //************
+   factory->BookMethod(TMVA::Types::kCuts,methodName,methodOptions);
+   factory->TrainAllMethods();
+   factory->TestAllMethods();
+   factory->EvaluateAllMethods();    
+   
+   // --------------------------------------------------------------
+   // Save the output
+   outputFile->Close();
+
+
+
+   std::cout << "==> Wrote root file: " << outputFile->GetName() << std::endl;
+   std::cout << "==> TMVARegression is done!" << std::endl;      
+   delete factory;
+
+}
