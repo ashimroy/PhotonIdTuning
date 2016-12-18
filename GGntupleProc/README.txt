@@ -10,9 +10,12 @@ or
 ./SP16.exe ../../ntuple/job_spring16_gjet_pt20to40_MGG_80toInf_miniAOD.root gjet_pt20to40_MGG_80toInf.root -10000 100000 0.102369421
 
 
-Do for the all pt bin samples(i.e. pt 20t040, 40to80 etc, not pt 15to6000) and then merge the files into one.
+Do for the all pt bin samples(i.e. pt 20t040, 40to80 etc, not pt 15to6000) and then merge the files into one and moved the new merged file to merged directory.
 
-For flat pt sample (15to6000) event weight is 1.0 and do not merge with the pt bin sample. It will use later for isolation pt scaling study.
+Example:
+hadd spring16_gjets_25ns.root gjet_pt20to40_MGG_80toInf.root gjet_pt20_MGG_40to80.root gjet_pt40_MGG_80toInf.root
+
+For flat pt sample (15to6000) event weight is 1.0 and do not merge with the pt bin sample. It will use later for isolation pt scaling study. Move this file to merged directory also.
 
 Event weight is calculated using the following formula:
 Event weight = Cross Section * Filter Efficiency / Total Entries
