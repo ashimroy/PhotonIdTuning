@@ -3,7 +3,7 @@ that into the input variables for the genetic algorithm.
 To do so, you need to process the high flat in pt gamma jet sample (in my case was a 15
 GeV to 6TeV sample.
 
-Copy the EA.txt file from the Eas directory and parse them into
+Copy the EA.txt file from the Eas directory to Isopt directory and parse them into
 the processor and aplly them to the isolations, before extracting the pt scalling.
 Make sure the input file in the CutID.h file is correct one that you produce from flat pt sample
 

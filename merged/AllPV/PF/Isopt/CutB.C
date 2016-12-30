@@ -7,8 +7,8 @@
 void CutID::CutBasedID(int reg,double EFFAr[7][3]){
 
   TFile *f1;
-  if(reg == 1) f1 =  new TFile("CutTMVABarrel90_HPT_test.root","recreate");
-  if(reg == 2) f1 =  new TFile("CutTMVAEndCap90_HPT_test.root","recreate");
+  if(reg == 1) f1 =  new TFile("CutTMVABarrel90_HPT.root","recreate");
+  if(reg == 2) f1 =  new TFile("CutTMVAEndCap90_HPT.root","recreate");
 
   TTree *t_S = new TTree("t_S","CUT NEEDS THIS  ");
   TTree *t_B = new TTree("t_B","CUT NEEDS THIS ");
