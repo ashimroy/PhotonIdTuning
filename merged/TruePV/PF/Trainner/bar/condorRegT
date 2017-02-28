@@ -1,0 +1,18 @@
+x509userproxy = /tmp/x509up_u48825
+universe = vanilla
+Executable = execRegT.csh
+Notification         = never
+ShouldTransferFiles  = yes
+WhenToTransferOutput = On_Exit
+#Requirements = Memory >= 199 &&OpSys == "LINUX"&& (Arch != "DUMMY" )&& Disk > 1000000
+#on_exit_remove       = (ExitBySignal == FALSE && (ExitCode == 0 || ExitCode == 42 || NumJobStarts>3))
+#+IsFastQueueJob      = True
+#getenv = true
+request_memory       = 19999
+request_disk         = 2048000
+Transfer_Input_Files = RegT.C,MediumR.txt
+#Transfer_Input_Files = test.C
+output               = $(Cluster)_$(Process)_job.out
+error                = $(Cluster)_$(Process)_job.err
+Log                  = $(Cluster)_$(Process)_job.log
+Queue
